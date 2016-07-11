@@ -1,4 +1,8 @@
+library(devtools)
+library(testthat)
 setwd("~/cloud/MafPackageR/")
+test_check("maf")
+install_github("matzhaugen/maf")
 current.code = as.package("maf")
 devtools::load_all(current.code)
 devtools::document(current.code)

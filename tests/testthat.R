@@ -1,0 +1,1 @@
+mafObject = maf(treeringTimeseries)
