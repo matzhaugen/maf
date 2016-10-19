@@ -19,21 +19,21 @@ An object of class "Maf" containing the following items:
 	\item{\code{autocor}}{A vector of autocorrelations for each maf factor.}
  \item{\code{rotation}}{A matrix of rotation vectors, each column representing a vector, 
 	with the first column containing the first rotation (MAF1), the second representing
- the second rotation and so on.}
+ the second rotation and so on. Each column's squares sum to 1.}
  \item{\code{x}}{If "rotx" is TRUE, this value contains the matrix with maf factors in the 
 	columns, with highest autocorrelation in the first column.}
 }
 }
 \description{
-This function performs a linear transformation of the data such that the
-output has covariance identity and the row vectors are mutually orthogonal.
-The input is a matrix of row vectors.
+This function performs a linear transformation of the data where the new time series
+are mutually orthogonal with identity covariance matrix.
+The input is a matrix of column vector time series.
 }
 \examples{
 # Extract mafs from dataset
-mafObject = maf(treeringTimeseries)
+maf.object = maf(treeringTimeseries)
 # Plot the first 6 mafs with undertainty estimates and estimate number of 
 # significant mafs contained in the dataset
-plot(mafObject) 
+plot(maf.object) 
 }
 

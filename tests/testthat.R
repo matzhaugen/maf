@@ -1,1 +1,4 @@
-mafObject = maf(treeringTimeseries)
+library(testthat)
+library(maf)
+
+test_check("maf")
