@@ -23,6 +23,7 @@
 #' # significant mafs contained in the dataset
 #' plot(maf.object) 
 #-------------
+#' @export
 maf <- function(x) {
 
 	if (class(x)=="data.frame" || (class(x)=="matrix" && dim(x)[2]>1)){
@@ -227,6 +228,7 @@ vectorAbsMaxSign <- function(v) {
 # method 1: Do subtract the smooth and calculate test statistic
 # p val = number of test stats that are greater than original
 # method 2: Do NOT subtract the smooth and calculate test statistic
+#' @export
 test.Maf <- function(maf.obj, alpha=0.05, block.size=5, smooth.span=30, B=100) {
 	
 	mafs = (maf.obj$mafs)
@@ -321,6 +323,7 @@ test.Maf <- function(maf.obj, alpha=0.05, block.size=5, smooth.span=30, B=100) {
 #' # significant mafs contained in the dataset
 #' plot(maf.object) 
 #-------------
+#' @export
 plot.Maf <- function(maf.obj, smooth.span=30, cexVal=1.5, 
 					 nmaf=min(dim(maf.obj$x)[2], 3), 
 					 with.uncertainty=TRUE, B=100, alpha=0.05, 
