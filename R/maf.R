@@ -5,7 +5,6 @@
 #' The input is a matrix of column vector time series.
 #' @param x A matrix where each column is a time series. The number of 
 #' rows must be greater than the number of columns
-#' @param rotx A logical parameter indicating wether to rotate the matrix \code{mat}.
 #' @return An object of class "Maf" containing the following items:
 #' \describe{
 #' 	\item{\code{x}}{The original data matrix.}
@@ -13,7 +12,7 @@
 #'  \item{\code{rotation}}{A matrix of rotation vectors, each column representing a vector, 
 #' 	with the first column containing the first rotation (MAF1), the second representing
 #'  the second rotation and so on. Each column's squares sum to 1.}
-#'  \item{\code{x}}{If "rotx" is TRUE, this value contains the matrix with maf factors in the 
+#'  \item{\code{mafs}}{Contains the matrix with maf factors in the 
 #' 	columns, with highest autocorrelation in the first column.}
 #' }
 #' @examples
@@ -262,12 +261,11 @@ test.Maf <- function(maf.obj, alpha=0.05, block.size=5, smooth.span=30, B=100) {
 	if (class(statStar) != "matrix") {
 		statStar = matrix(statStar, 1, B)
 	}
-	print(pval)
 	
 	if (all(pval < alpha)) {
 		nSignificantMafs = p
 	} else {
-		nSignificantMafs = min(which(pval > alpha)) # method 1
+		nSignificantMafs = min(which(pval > alpha)) - 1 # method 1
 		# nSignificantMafs = min(which(pval > alpha)) # method 2
 	}
 	print(paste("Estimate of # of MAFs in dataset: ", nSignificantMafs))
@@ -278,7 +276,8 @@ test.Maf <- function(maf.obj, alpha=0.05, block.size=5, smooth.span=30, B=100) {
 #' Plot maf object
 #' 
 #' This function will plot the first few mafs in the dataset overlaid
-#' with a smooth version of the same maf and, if desired, confidence intervals.
+#' with a smooth version of the same maf and, if desired, confidence intervals. The
+#' legend shows the emirical signal-to-noise ratio, i.e. signal variance (across time) divided by noise variance
 #' Additionally, an estimate of the number of mafs will be printed.
 #' @param maf.object The output of the \code{maf} function.
 #' @param smoothSpan Fraction between 0-1 that specifies the proportion of timesteps
@@ -325,7 +324,7 @@ test.Maf <- function(maf.obj, alpha=0.05, block.size=5, smooth.span=30, B=100) {
 #-------------
 #' @export
 plot.Maf <- function(maf.obj, smooth.span=30, cexVal=1.5, 
-					 nmaf=min(dim(maf.obj$x)[2], 3), 
+					 which.maf=c(1:min(dim(maf.obj$x)[2], 3)), 
 					 with.uncertainty=TRUE, B=100, alpha=0.05, 
 					 block.size=5) {
 	
@@ -335,18 +334,25 @@ plot.Maf <- function(maf.obj, smooth.span=30, cexVal=1.5,
 	
 	if (with.uncertainty) {
 		output = test.Maf(maf.obj, alpha, block.size, smooth.span, B)		
+		mafSmooth = output$mafSmooth
 	} else {
 		output = NULL
+		mafSmooth = filter2(mafs, smooth.span)[, 1:p]
 	}
 
-	mafSmooth = output$mafSmooth
+	snr = round(getSnrEmpir(mafs, smooth.span), digits=3)
 
 	# Plot
-	par(mfrow=c(ceiling(nmaf / 3), 3))
-	for (i in 1:nmaf) {
+	nmaf = length(which.maf)
+	if (nmaf < 3) {
+			par(mfrow=c(1, nmaf))	
+	} else {
+		par(mfrow=c(ceiling(nmaf / 3), 3))
+	}
+	for (i in which.maf) {
 		par(mar=c(4,4,4,2))
 		plot(mafs[, i], cex.axis=cexVal, cex.main=cexVal, main=paste("MAF", i),
-			cex.lab=cexVal, ylim=range(c(mafs[, 1:nmaf])), col=grey(0.5), type="l",
+			cex.lab=cexVal, ylim=range(c(mafs[, which.maf])), col=gray(0.5), type="l",
 			ylab="", xlab="Time step")
 		lines(mafSmooth[, i], lwd=3, col=1)
 		if (with.uncertainty) {
@@ -356,5 +362,6 @@ plot.Maf <- function(maf.obj, smooth.span=30, cexVal=1.5,
 			lines(upper, lty=2, lwd=1)
 			lines(lower, lty=2, lwd=1)			
 		}
+		legend('topleft', c(paste("SNR:", snr[i])), lwd=2)
 	}
 }

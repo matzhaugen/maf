@@ -4,14 +4,12 @@
 \alias{plot.Maf}
 \title{Plot maf object}
 \usage{
-\method{plot}{Maf}(maf.obj, smooth.span = 30, cexVal = 1.5,
-  nmaf = min(dim(maf.obj$x)[2], 3), with.uncertainty = TRUE, B = 100,
-  alpha = 0.05, block.size = 5)
+plot.Maf(maf.obj, smooth.span = 30, cexVal = 1.5,
+  which.maf = c(1:min(dim(maf.obj$x)[2], 3)), with.uncertainty = TRUE,
+  B = 100, alpha = 0.05, block.size = 5)
 }
 \arguments{
 \item{cexVal}{The size of the labels in the plot}
-
-\item{nmaf}{The number of MAFs to plot}
 
 \item{B}{Number of replications in the confidence interval calculations}
 
@@ -26,6 +24,8 @@ contiguous time steps to sample at the time from the set of residuals.}
 to include in the smoothing window, which is weighted by a tricubic. See ?loess for
 details. Alternatively, one can specify an integer greater than 1 which refers to the 
 number of time points to include in the tricubic filter.}
+
+\item{nmaf}{The number of MAFs to plot}
 
 \item{with.wncertainty}{A logical specifying whether to plot the confidence interval
 around each maf.}

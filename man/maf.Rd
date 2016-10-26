@@ -9,8 +9,6 @@ maf(x)
 \arguments{
 \item{x}{A matrix where each column is a time series. The number of 
 rows must be greater than the number of columns}
-
-\item{rotx}{A logical parameter indicating wether to rotate the matrix \code{mat}.}
 }
 \value{
 An object of class "Maf" containing the following items:
@@ -20,7 +18,7 @@ An object of class "Maf" containing the following items:
  \item{\code{rotation}}{A matrix of rotation vectors, each column representing a vector, 
 	with the first column containing the first rotation (MAF1), the second representing
  the second rotation and so on. Each column's squares sum to 1.}
- \item{\code{x}}{If "rotx" is TRUE, this value contains the matrix with maf factors in the 
+ \item{\code{mafs}}{Contains the matrix with maf factors in the 
 	columns, with highest autocorrelation in the first column.}
 }
 }
