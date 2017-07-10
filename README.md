@@ -4,7 +4,14 @@ Maximum autocorrelation factors (MAF) are are linear combinations of a set of co
 
 # Install
 
-'''
+```
 library(devtools)
 install_github("matzhaugen/maf")
-'''
+```
+
+# Run the example
+
+```
+maf.object = maf(treeringTimeseries)
+plot(maf.object)
+```
