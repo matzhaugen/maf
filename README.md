@@ -18,7 +18,7 @@ maf.object = maf(treeringTimeseries[850:999,])
 plot(maf.object)
 ```
 
-![alt text](ex1.png =100x20 "Example 1")
+![alt text](ex1.png =100x20)
 
 
 
