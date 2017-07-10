@@ -11,7 +11,7 @@ install_github("matzhaugen/maf")
 ```
 
 # Run the example
-This will extract the MAFs from a dataset containing annual treering widths. The plot function will plot the first 3 MAFs with confidence intervals, and estimate the number of MAFs in the data set. Note that I only plot the last 150 timesteps for speed and converience. If large datasets are analysed, you might consider not plotting the confidence intervals by setting `with.uncertainty = FALSE`.
+This will extract the MAFs from a dataset containing annual treering widths. The plot function will plot the first 3 MAFs with confidence intervals, and estimate the number of MAFs in the data set. Note that I only plot the last 150 timesteps for speed and converience. If large datasets are analysed, you might consider not plotting the confidence intervals by setting `with.uncertainty = FALSE` in the `plot` command.
 ```
 library(maf)
 maf.object = maf(treeringTimeseries[850:999,])
