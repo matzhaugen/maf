@@ -365,3 +365,91 @@ plot.Maf <- function(maf.obj, smooth.span=30, cexVal=1.5,
 		legend('topleft', c(paste("SNR:", snr[i])), lwd=2)
 	}
 }
+#' High dimensional MAF extraction
+#' 
+#' This is a generalization of the MAF algorithm when the sample size (length of time series) 
+#' is smaller than the number of time series, i.e. n < p. The idea is to first partition the set of time series 
+#' into smaller groups such that the n > p and the problem is well-posed with a non-singular covariance
+#' matrix. From each group we extract the first MAF and then 
+#' @param mat A matrix of dimension n x p. Tested only for dimensions smaller than n/p~10000.
+#' @param alpha Tuning parameter \in [0, 1] that describes the size of the partitioning groups. Viz, 
+#' group size <= n * alpha. We find for the cases we tried that the results are not that dependant 
+#' on the value of \alpha as long as it's in the range of 0.2 to 0.8.
+#' @param type What type of partition to use (default is 'random'). We find that a random partition yields
+#' the best results. There are theoretical justifcations for this in an upcoming paper.
+#'
+#' @return A list containing the following items
+#' \describe{
+#'  \item{\code{out}}{MAF1 time series}
+#'  \item{\code{a}}{The set of weights which when multiplied by the original time series produces MAF1.}
+#' }
+#' @details 
+#' Currently only implemented for the first MAF, for higher MAFs either stay tuned or subtract out MAF1 from the data set,
+#' e.g. by linear regression, and then run the algorithm on the residuals.
+#' 	
+#' @examples
+#' # Make a signal
+#' n = 150 # number of time steps
+#' p = 600 # number of time series
+#' rho = 0.4 # noise cross correlation
+#' cov_e = matrix(rho, p, p) # noise covariance
+#' diag(cov_e) = 1
+#' noise = mvrnorm(n=n, mu=rep(0, p), Sigma=cov_e)
+#' x=seq(0,4,len=n);
+#' signal = (x-1)*(x-2)*(x-3)
+#' signal.sd = c(rep(0.2, p/2), rep(0.6, p/2))
+#' signals = signal %*% t(signal.sd) / sd(signal)
+#' data = signals + noise
+#' result = MAFpart(data)
+#' plot(result$out, type="l", xlab='Time steps', ylab='Signal (Unitless)', 
+#' 	main='High Dimensional Signal Extraction')
+#' lines(lm(result$out ~ signal)$fit, lwd=2, col=2)
+#' legend('topleft', c('Estimate', 'Truth'), col=c(1,2), lwd=c(1,2))
+#-------------
+#' @export
+MAFpart <- function(mat, alpha=0.2, type="random") {
+	p = dim(mat)[2]
+	n = dim(mat)[1]
+	if (is.vector(mat)) {
+		out = mat
+		a = 1
+	} else if (p<=(n * alpha)) {
+		maf = MAF(mat)
+		out = as.matrix(maf$out[,1], n, 1)
+		a = maf$a[,1]
+	} else {
+		m = ceil(p/(alpha * n))	
+		if (type=="random") {
+			v = rep(1:m, ceil(p / m))
+			ind = v[sample(v, p)] # shuffle randomly!
+		} else if (type=="kmeans") {
+			ind = kmeans(cov(mat), m)$clu			
+		} else if (type=="kmediod") {
+			ind = pam(cov(mat), m, cluster.only=TRUE)
+		} else {
+			print("not a valid type")
+		}		
+
+		myList = list(); length(myList) = m
+		out = list(); length(myList) = m
+		v = list(); length(myList) = m
+		for (i in 1:m) {
+			myList[[i]] = mat[, ind == i] 
+			maf = MAFpart(myList[[i]], type=type)
+			out[[i]] = maf$out
+			v[[i]] = maf$a
+		}
+
+		new_mat = do.call(cbind, out)
+		mafrec = MAFpart(new_mat, type=type)
+		out = mafrec$out
+		w = mafrec$a
+		a = rep(0, p)
+		for (i in 1:m) {
+			a[ind == i] = v[[i]] * w[i]
+		}
+		a = a / sqrt(sum(a^2))
+	}
+	list(out=out, a=a)
+}
+
